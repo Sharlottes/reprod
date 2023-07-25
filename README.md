@@ -1,4 +1,4 @@
-# vanilla-extract #1101 issue reproduction
+# vanilla-extract issue reproduction
 
 ## Test Environments
 
