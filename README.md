@@ -1,34 +1,76 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# vanilla-extract #1101 issue reproduction
 
-## Getting Started
+## how to create this repo
 
-First, run the development server:
+1. create next app.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+yarn create next-app
+yarn add @vanilla-extract/css @vanilla-extract/next-plugin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+CNA setting is like below log.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+      - create-next-app
+√ What is your project named? ... reprod
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like to use `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to customize the default import alias? ... No / Yes
+Creating a new Next.js app in C:\Users\user\Documents\Github\reprod.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```
 
-## Learn More
+2. change `next.config.js` to below code
 
-To learn more about Next.js, take a look at the following resources:
+```
+const { createVanillaExtractPlugin } = require("@vanilla-extract/next-plugin");
+const withVanillaExtract = createVanillaExtractPlugin();
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  reactStrictMode: true,
+};
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+module.exports = withVanillaExtract(nextConfig);
+```
 
-## Deploy on Vercel
+not sure `experimental.appDir` do something. but although without appDir, the result was same.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. run `next dev`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+yarn dev
+```
+
+4. below error log occured and process died.
+
+```
+$ yarn dev
+yarn run v1.22.19
+$ next dev
+- warn Port 3000 is in use, trying 3001 instead.
+- ready started server on 0.0.0.0:3001, url: http://localhost:3001
+TypeError: Cannot read properties of undefined (reading 'loader')
+    at getVanillaExtractCssLoaders (C:\Users\user\Documents\GitHub\reprod\node_modules\@vanilla-extract\next-plugin\dist\vanilla-extract-next-plugin.cjs.dev.js:41:40)
+    at Object.webpack (C:\Users\user\Documents\GitHub\reprod\node_modules\@vanilla-extract\next-plugin\dist\vanilla-extract-next-plugin.cjs.dev.js:97:12)
+    at getBaseWebpackConfig (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\build\webpack-config.js:2147:32)
+    at async Promise.all (index 0)
+    at async Span.traceAsyncFn (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\trace\trace.js:103:20)
+    at async Span.traceAsyncFn (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\trace\trace.js:103:20)
+    at async HotReloader.start (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\server\dev\hot-reloader.js:573:30)
+    at async DevServer.prepareImpl (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\server\dev\next-dev-server.js:685:9)
+    at async NextServer.prepare (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\server\next.js:165:13)
+    at async Server.<anonymous> (C:\Users\user\Documents\GitHub\reprod\node_modules\next\dist\server\lib\render-server.js:136:17) {
+  type: 'TypeError'
+}
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+``
+```
