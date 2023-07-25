@@ -1,4 +1,6 @@
-# vanilla-extract issue reproduction
+# vanilla-extract [#1147](https://github.com/vanilla-extract-css/vanilla-extract/issues/1147) issue reproduction
+
+**Issue has been solved: [#1148](https://github.com/vanilla-extract-css/vanilla-extract/pull/1148)**
 
 ## Test Environments
 
